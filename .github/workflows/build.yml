@@ -1,4 +1,4 @@
-concurrency: name: Build Hoshban APK from Zip
+name: Build Hoshban APK from Zip
 
 on:
   push:
