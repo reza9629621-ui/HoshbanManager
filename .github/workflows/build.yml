@@ -1,4 +1,4 @@
-name: Build Hoshban APK from Zip
+concurrency: name: Build Hoshban APK from Zip
 
 on:
   push:
@@ -19,6 +19,9 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
       with:
@@ -26,9 +29,7 @@ jobs:
 
     - name: Unzip and Flatten Project
       run: |
-        # باز کردن فایل زیپ
         unzip -o HoshbanManager.zip -d project_root
-        # اگر فایل‌ها داخل یک پوشه تو در تو بودند، آن‌ها را به روت منتقل می‌کنیم
         if [ -d "project_root/HoshbanManager" ]; then
           mv project_root/HoshbanManager/* .
         elif [ -d "project_root/HoshbanManagerV2" ]; then
