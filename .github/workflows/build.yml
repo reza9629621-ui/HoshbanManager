@@ -26,9 +26,8 @@ jobs:
         with:
           gradle-version: 8.2
 
-      - name: Unzip and Build
+      - name: Unzip Project
         run: |
-          ls -la
           unzip -o HoshbanManager.zip -d project_root
           if [ -d "project_root/HoshbanManager" ]; then
             mv project_root/HoshbanManager/* .
@@ -37,7 +36,10 @@ jobs:
           else
             mv project_root/* .
           fi
-          gradle assembleDebug
+
+      # این بخش بهینه شده تا سریع‌تر و بدون گیر کردن اجرا شود
+      - name: Build with Gradle
+        run: gradle assembleDebug --no-daemon --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
