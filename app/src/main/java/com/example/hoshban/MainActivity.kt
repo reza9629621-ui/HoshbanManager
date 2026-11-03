@@ -1,12 +1,11 @@
 package com.example.hoshban
 
-import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
-import android.webkit.WebView
-import android.webkit.WebViewClient
+import android.widget.Toast
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -23,7 +22,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.json.JSONArray
@@ -74,7 +72,7 @@ fun saveLinks(context: Context, links: List<LinkConfig>) {
         .apply()
 }
 
-// ------------------ Activity ------------------
+// ------------------ Activity و رابط کاربری ------------------
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -86,36 +84,15 @@ class MainActivity : ComponentActivity() {
                     background = Color(0xFFF4F7F6)
                 )
             ) {
-                AppNavigator()
+                MainScreen()
             }
         }
     }
 }
 
-// ------------------ مدیریت صفحه‌ها ------------------
-@Composable
-fun AppNavigator() {
-    // اگر این متغیر مقدار داشته باشد، یعنی باید WebView باز شود
-    var activeUrl by remember { mutableStateOf<String?>(null) }
-
-    if (activeUrl != null) {
-        // صفحه وب (WebView)
-        WebViewScreen(
-            url = activeUrl!!,
-            onBack = { activeUrl = null }
-        )
-    } else {
-        // صفحه اصلی (لیست لینک‌ها)
-        MainScreen(
-            onExecute = { url -> activeUrl = url }
-        )
-    }
-}
-
-// ------------------ صفحه اصلی ------------------
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(onExecute: (String) -> Unit) {
+fun MainScreen() {
     val context = LocalContext.current
     var links by remember { mutableStateOf(loadLinks(context)) }
     var showDialog by remember { mutableStateOf(false) }
@@ -174,9 +151,17 @@ fun MainScreen(onExecute: (String) -> Unit) {
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 Button(
                                     onClick = {
-                                        // ساخت لینک و ارسال به WebView
+                                        // ساخت لینک نهایی
                                         val url = "https://hoshban.ir/gps/user/save_session.php?Code_system=${link.codeSystem}&email=${link.email}"
-                                        onExecute(url)
+                                        
+                                        try {
+                                            // باز کردن لینک در مرورگر پیش‌فرض گوشی
+                                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                                            context.startActivity(intent)
+                                        } catch (e: Exception) {
+                                            // اگر مرورگری روی گوشی نصب نبود
+                                            Toast.makeText(context, "مرورگری برای باز کردن لینک پیدا نشد!", Toast.LENGTH_LONG).show()
+                                        }
                                     },
                                     modifier = Modifier.weight(1f),
                                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E6F5C))
@@ -219,48 +204,6 @@ fun MainScreen(onExecute: (String) -> Unit) {
     }
 }
 
-// ------------------ صفحه WebView (مرورگر داخلی) ------------------
-@SuppressLint("SetJavaScriptEnabled")
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun WebViewScreen(url: String, onBack: () -> Unit) {
-    // مدیریت دکمه بازگشت گوشی
-    BackHandler {
-        onBack()
-    }
-
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("سایت هوشبان", fontSize = 18.sp, fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "بازگشت")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFF1E6F5C),
-                    titleContentColor = Color.White,
-                    navigationIconContentColor = Color.White
-                )
-            )
-        }
-    ) { padding ->
-        AndroidView(
-            modifier = Modifier.padding(padding).fillMaxSize(),
-            factory = { context ->
-                WebView(context).apply {
-                    webViewClient = WebViewClient()
-                    settings.javaScriptEnabled = true // فعال کردن جاوااسکریپت برای سایت‌ها
-                    settings.domStorageEnabled = true
-                    loadUrl(url)
-                }
-            }
-        )
-    }
-}
-
-// ------------------ دیالوگ افزودن/ویرایش ------------------
 @Composable
 fun AddEditDialog(link: LinkConfig?, onDismiss: () -> Unit, onSave: (LinkConfig) -> Unit) {
     var name by remember { mutableStateOf(link?.name ?: "") }
