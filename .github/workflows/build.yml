@@ -18,8 +18,9 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+      - name: Accept Android SDK Licenses
+        run: |
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null 2>&1 || true
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
@@ -28,7 +29,6 @@ jobs:
 
       - name: Unzip and Build
         run: |
-          # چک کردن اینکه فایل زیپ وجود دارد یا خیر
           if [ -f "HoshbanManager.zip" ]; then
             unzip -o HoshbanManager.zip -d project_root
             if [ -d "project_root/HoshbanManager" ]; then
@@ -40,7 +40,7 @@ jobs:
             fi
           fi
           
-          # اجرای Gradle بدون نیاز به فایل gradlew
+          # استفاده از gradle نصب شده در محیط به جای فایل gradlew
           gradle assembleDebug --no-daemon --stacktrace
 
       - name: Upload APK
