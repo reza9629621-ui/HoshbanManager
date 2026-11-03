@@ -1,59 +1,38 @@
 package com.example.hoshban
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
+import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.hoshban.data.LinkRepository
+import com.example.hoshban.ui.MainViewModel
+import com.example.hoshban.ui.screens.MainScreen
+import com.example.hoshban.ui.theme.HoshbanTheme
 
-import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        val repository = LinkRepository(applicationContext)
         setContent {
-            MaterialTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    MainScreen()
-                }
+            HoshbanTheme {
+                val vm: MainViewModel = viewModel(factory = MainViewModel.Factory(repository))
+                val links by vm.links.collectAsState()
+                val snackbar by vm.snackbar.collectAsState()
+                
+                MainScreen(
+                    links = links,
+                    snackbar = snackbar,
+                    onAdd = vm::addLink,
+                    onUpdate = vm::updateLink,
+                    onDelete = vm::deleteLink,
+                    onExecute = vm::execute,
+                    onSnackbarShown = vm::clearSnackbar
+                )
             }
         }
-    }
-}
-
-@Composable
-fun MainScreen() {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Icon(
-            imageVector = Icons.Filled.CheckCircle,
-            contentDescription = "Shield Check Icon",
-            modifier = Modifier.size(80.dp),
-            tint = MaterialTheme.colorScheme.primary
-        )
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        Text(
-            text = "مدیریت هوشبان",
-            style = MaterialTheme.typography.headlineMedium
-        )
-        
-        Text(
-            text = "برنامه با موفقیت ساخته شد!",
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(top = 8.dp)
-        )
     }
 }
