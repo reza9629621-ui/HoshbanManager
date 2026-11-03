@@ -37,7 +37,7 @@ fun MainScreen() {
         verticalArrangement = Arrangement.Center
     ) {
         Icon(
-            imageVector = Icons.Filled.ShieldCheck,
+            imageVector = Icons.Filled.CheckCircle,
             contentDescription = "Shield Check Icon",
             modifier = Modifier.size(80.dp),
             tint = MaterialTheme.colorScheme.primary
