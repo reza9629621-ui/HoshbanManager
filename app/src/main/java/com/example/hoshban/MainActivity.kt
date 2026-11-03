@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.launch // 👈 این خط اضافه شد
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection
