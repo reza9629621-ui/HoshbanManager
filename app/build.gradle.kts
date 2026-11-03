@@ -24,9 +24,12 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+}
 
-    kotlinOptions {
-        jvmTarget = "17"
+// جایگزین بخش kotlinOptions قدیمی شد تا هشدار (Warning) گیت‌هاب برطرف شود
+kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
     }
 }
 
@@ -37,7 +40,10 @@ dependencies {
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
+    
+    // این خط برای آیکون‌های اضافی مثل ShieldCheck لازم است
     implementation("androidx.compose.material:material-icons-extended")
+    
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
 
     debugImplementation("androidx.compose.ui:ui-tooling")
